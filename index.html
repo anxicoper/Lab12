@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Alien Sighting Form</title>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .form-section {
+      margin-bottom: 20px;
+    }
+    .ui-dialog-titlebar-close {
+      display: none;
+    }
+    .results {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Alien Sighting Report</h2>
+
+<form id="alienForm">
+  <!-- Datepicker -->
+  <div class="form-section">
+    <label for="datepicker">Date of Sighting:</label>
+    <input type="text" id="datepicker">
+  </div>
+
+  <!-- Alien Type -->
+  <div class="form-section">
+    <p>Choose Alien Type:</p>
+    <input type="radio" id="human" name="creatureType" value="Human-like">
+    <label for="human">Human-like</label><br>
+    <input type="radio" id="worm" name="creatureType" value="Worm-like">
+    <label for="worm">Worm-like</label><br>
+    <input type="radio" id="insect" name="creatureType" value="Insect-like">
+    <label for="insect">Insect-like</label><br>
+    <input type="radio" id="fish" name="creatureType" value="Fish-like">
+    <label for="fish">Fish-like</label><br>
+    <input type="radio" id="bird" name="creatureType" value="Bird-like">
+    <label for="bird">Bird-like</label><br>
+  </div>
+
+  <!-- Weight Slider -->
+  <div class="form-section">
+    <label for="weightSlider">Creature Weight (lbs):</label>
+    <div id="weightSlider"></div>
+    <span id="weightValue">0</span> lbs
+  </div>
+
+  <!-- Height Slider -->
+  <div class="form-section">
+    <label for="heightSlider">Creature Height (feet):</label>
+    <div id="heightSlider"></div>
+    <span id="heightValue">0</span> feet
+  </div>
+
+  <!-- Spinners -->
+  <div class="form-section">
+    <label for="eyesSpinner">Number of Eyes:</label>
+    <input id="eyesSpinner" value="1" min="1" max="20">
+  </div>
+
+  <div class="form-section">
+    <label for="armsSpinner">Number of Arms:</label>
+    <input id="armsSpinner" value="2" min="0" max="20">
+  </div>
+
+  <div class="form-section">
+    <label for="legsSpinner">Number of Legs:</label>
+    <input id="legsSpinner" value="2" min="0" max="20">
+  </div>
+
+  <!-- Color Picker -->
+  <div class="form-section">
+    <label for="colorPicker">Creature Color:</label>
+    <div id="colorPicker" style="height: 20px; background-color: #000;"></div>
+  </div>
+
+  <!-- Submit -->
+  <div class="form-section">
+    <button type="button" id="submitForm">Submit Report</button>
+  </div>
+</form>
+
+<!-- Dialog Box -->
+<div id="dialog" title="Thank you!" style="display: none;">
+  <p>Your sighting has been reported. Keep watching!</p>
+  <img src="alien2.png" width="50" height="50">
+  <div id="results"></div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script>
+  $(function () {
+    // Datepicker
+    $("#datepicker").datepicker();
+
+    // Radio button style
+    $("input:radio").checkboxradio();
+
+    // Sliders
+    $("#weightSlider").slider({
+      range: "min",
+      value: 0,
+      min: 0,
+      max: 1000,
+      slide: function (event, ui) {
+        $("#weightValue").text(ui.value);
+      }
+    });
+
+    $("#heightSlider").slider({
+      range: "min",
+      value: 0,
+      min: 0,
+      max: 20,
+      slide: function (event, ui) {
+        $("#heightValue").text(ui.value);
+      }
+    });
+
+    // Spinners
+    $("#eyesSpinner").spinner();
+    $("#armsSpinner").spinner();
+    $("#legsSpinner").spinner();
+
+    // Color picker (fake with slider)
+    $("#colorPicker").slider({
+      range: "min",
+      value: 0,
+      min: 0,
+      max: 16777215,
+      slide: function (event, ui) {
+        const color = "#" + ui.value.toString(16).padStart(6, '0');
+        $(this).css("background-color", color);
+      }
+    });
+
+    // Dialog setup
+    $("#dialog").dialog({
+      autoOpen: false,
+      modal: true,
+      show: { effect: "fade", duration: 500 },
+      hide: { effect: "fade", duration: 500 }
+    });
+
+    // Handle submit
+    $("#submitForm").click(function (event) {
+      event.preventDefault();
+
+      const dt = $("#datepicker").val();
+      const creatureType = $("input[name='creatureType']:checked").val();
+      const weight = $("#weightSlider").slider("option", "value");
+      const height = $("#heightSlider").slider("option", "value");
+      const numberEyes = $("#eyesSpinner").spinner("value");
+      const numberArms = $("#armsSpinner").spinner("value");
+      const numberLegs = $("#legsSpinner").spinner("value");
+      const color = $("#colorPicker").css("background-color");
+
+      if (!dt) {
+        alert("Please select a date.");
+        return;
+      }
+
+      const siteReport = {
+        date: dt,
+        creatureType,
+        weight,
+        height,
+        numberEyes,
+        numberArms,
+        numberLegs,
+        color
+      };
+
+      const json = JSON.stringify(siteReport, null, 4);
+      const heading = `<h4 class="ui-state-default ui-corner-all ui-helper-clearfix" style="padding:4px; background: #999f29;">Alien Sighting Report JSON Data</h4>`;
+      $("#results").html(heading + `<pre>${json}</pre>`);
+      $("#dialog").dialog("open");
+    });
+  });
+</script>
+
+</body>
+</html>
